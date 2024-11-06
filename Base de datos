@@ -1,0 +1,27 @@
+CREATE DATABASE enc;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    correo VARCHAR(100) NOT NULL,
+    password_sin_encriptar VARCHAR(100) NOT NULL,
+    password_encriptada BYTEA
+);
+
+INSERT INTO clientes (nombre, correo, password_sin_encriptar, password_encriptada)
+VALUES ('Juan Perez', 'juan.perez@example.com', 'ContraseñaJuan123', pgp_sym_encrypt('ContraseñaJuan123', 'william2005'));
+
+INSERT INTO clientes (nombre, correo, password_sin_encriptar, password_encriptada)
+VALUES ('Maria Garcia', 'maria.garcia@example.com', 'ContraseñaMaria456', pgp_sym_encrypt('ContraseñaMaria456', 'william2005'));
+
+SELECT * FROM clientes;
+
+SELECT encode(pgp_sym_encrypt(
+    'SELECT id, nombre, correo, pgp_sym_decrypt(password_encriptada, ''william2005'') AS password_desencriptada FROM clientes;',
+    'clave_segura'), 'base64') AS consulta;
+
+SELECT id, nombre, correo,
+       pgp_sym_decrypt(password_encriptada, 'william2005') AS password_desencriptada
+FROM clientes;
