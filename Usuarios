@@ -1,0 +1,9 @@
+CREATE USER william WITH PASSWORD 'upla2024';
+
+GRANT CONNECT ON DATABASE Enc TO william;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE clientes TO william;
+
+SELECT id, nombre, correo,
+       pgp_sym_decrypt(password_encriptada, 'william2005') AS password_desencriptada
+FROM clientes;
